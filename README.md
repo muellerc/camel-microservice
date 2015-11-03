@@ -23,7 +23,7 @@ Execute './standalone.sh'
 
 ## Application
 Goto ${camel-microservice_HOME}
-Execute 'mvn clean install -Pdeploy,it'
+Execute 'mvn clean install -Pdeploy'
 
 # CREATE A NEW COMMENT
 curl -i -X POST -H "Content-Type: application/json" -d '{"text":"this is my first comment"}' http://localhost:8080/camel-microservice/v1/comments
