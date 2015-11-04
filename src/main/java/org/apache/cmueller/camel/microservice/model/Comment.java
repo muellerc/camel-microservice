@@ -2,6 +2,9 @@ package org.apache.cmueller.camel.microservice.model;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;

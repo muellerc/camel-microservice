@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cmueller.camel.microservice.dao.CommentDao;
@@ -38,7 +39,13 @@ public class CommentsResourceImpl implements CommentsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
     public Comment get(@PathParam("id") String id) {
-        return dao.get(id);
+        Comment comment = dao.get(id);
+
+        if (comment == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        return comment;
     }
 
     @Override
