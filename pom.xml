@@ -45,6 +45,12 @@
     <dependencies>
         <!-- container provided dependencies -->
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>jaxrs-api</artifactId>
             <scope>provided</scope>
@@ -72,6 +78,12 @@
 		    <version>3.0.13.Final</version>
 		    <scope>provided</scope>
 		</dependency>
+		
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-cdi</artifactId>
+            <version>2.16.0</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -207,6 +219,7 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.19</version>
                         <configuration>
+                            <argLine>-XX:MaxPermSize=128M</argLine>
 		                    <systemPropertyVariables>
 		                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
 		                    </systemPropertyVariables>

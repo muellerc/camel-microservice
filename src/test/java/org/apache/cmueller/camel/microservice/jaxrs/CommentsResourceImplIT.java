@@ -11,6 +11,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.cmueller.camel.microservice.camel.CommentsRouteBuilder;
 import org.apache.cmueller.camel.microservice.dao.CommentDao;
 import org.apache.cmueller.camel.microservice.model.Comment;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -21,6 +22,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,17 +34,19 @@ public class CommentsResourceImplIT {
 
     @Deployment(testable = false)
     public static Archive<WebArchive> deploy() throws Exception {
-        return ShrinkWrap.create(WebArchive.class, "camel-microservices.war")
+        PomEquippedResolveStage resolver = Maven.resolver().loadPomFromFile("pom.xml");
+        return ShrinkWrap.create(WebArchive.class, "camel-microservice.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-            /*.addAsLibraries(Maven.resolver().loadPomFromFile("pom.xml").
-                resolve("commons-lang:commons-lang").withoutTransitivity().asFile())*/
+            //.addAsLibraries(resolver.resolve("org.apache.camel:camel-core").withoutTransitivity().asFile())
+            .addAsLibraries(resolver.resolve("org.apache.camel:camel-cdi").withTransitivity().asFile())
+            .addPackage(CommentsRouteBuilder.class.getPackage())
             .addPackage(CommentDao.class.getPackage())
             .addPackage(ApplicationConfig.class.getPackage())
             .addPackage(Comment.class.getPackage());
     }
 
     private Client client;
-    private WebTarget target;;
+    private WebTarget target;
 
     @ArquillianResource
     private URL baseUrl;
@@ -49,8 +54,9 @@ public class CommentsResourceImplIT {
     @Before
     public void setup() throws Exception {
         client = ClientBuilder.newClient();
-        target = client.target(URI.create(new URL(baseUrl, "v1/comments").toExternalForm()));
-        target.register(Comment.class);
+        target = client.target(URI.create(new URL(baseUrl, "v1/comments")
+            .toExternalForm()))
+            .register(Comment.class);
     }
 
     @After
