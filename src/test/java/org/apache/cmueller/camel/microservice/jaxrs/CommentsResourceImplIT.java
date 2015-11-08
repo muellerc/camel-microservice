@@ -1,14 +1,15 @@
 package org.apache.cmueller.camel.microservice.jaxrs;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.URI;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.cmueller.camel.microservice.camel.CommentsRouteBuilder;
@@ -46,7 +47,6 @@ public class CommentsResourceImplIT {
     }
 
     private Client client;
-    private WebTarget target;
 
     @ArquillianResource
     private URL baseUrl;
@@ -54,9 +54,6 @@ public class CommentsResourceImplIT {
     @Before
     public void setup() throws Exception {
         client = ClientBuilder.newClient();
-        target = client.target(URI.create(new URL(baseUrl, "v1/comments")
-            .toExternalForm()))
-            .register(Comment.class);
     }
 
     @After
@@ -68,12 +65,121 @@ public class CommentsResourceImplIT {
 
     @Test
     @InSequence(1)
-    public void initialize() throws Exception {
-        Comment comment = new Comment();
-        comment.setText("This is the first comment");
+    public void create() throws Exception {
+        Comment comment1 = new Comment();
+        comment1.setText("This is the first comment");
 
-        comment = target.request().post(Entity.entity(comment, MediaType.APPLICATION_JSON), Comment.class);
+        Comment comment = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            .post(Entity.entity(comment1, MediaType.APPLICATION_JSON), Comment.class);
 
         assertNotNull(comment.getId());
+        assertEquals("This is the first comment", comment.getText());
+
+        //
+
+        Comment comment2 = new Comment();
+        comment2.setText("This is my second comment");
+
+        comment = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            .post(Entity.entity(comment2, MediaType.APPLICATION_JSON), Comment.class);
+
+        assertNotNull(comment.getId());
+        assertEquals("This is my second comment", comment.getText());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @InSequence(2)
+    public void getAll() throws Exception {
+        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            //.get(new GenericType<List<Comment>>(){});
+            .get(List.class);
+
+        assertEquals(2, comments.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @InSequence(3)
+    public void get() throws Exception {
+        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            //.get(new GenericType<List<Comment>>(){});
+            .get(List.class);
+        String id = (String) comments.get(0).get("id");
+        String text = (String) comments.get(0).get("text");
+
+        Comment comment = client.target(new URL(baseUrl, "v1/comments").toString())
+            .path("{id}")
+            .resolveTemplate("id", id)
+            .request()
+            .get(Comment.class);
+        
+
+        assertEquals(id, comment.getId());
+        assertEquals(text, comment.getText());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @InSequence(4)
+    public void update() throws Exception {
+        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            //.get(new GenericType<List<Comment>>(){});
+            .get(List.class);
+
+        assertEquals(2, comments.size());
+
+        String id = (String) comments.get(0).get("id");
+
+        Comment comment = new Comment();
+        comment.setId(id);
+        comment.setText("This is my third comment");
+
+        comment = client.target(new URL(baseUrl, "v1/comments").toString())
+            .path("{id}")
+            .resolveTemplate("id", id)
+            .request()
+            .put(Entity.entity(comment, MediaType.APPLICATION_JSON), Comment.class);
+        
+
+        assertEquals(id, comment.getId());
+        assertEquals("This is my third comment", comment.getText());
+
+        comments = client.target(new URL(baseUrl, "v1/comments").toString())
+                .request()
+                //.get(new GenericType<List<Comment>>(){});
+                .get(List.class);
+
+            assertEquals(2, comments.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @InSequence(5)
+    public void delete() throws Exception {
+        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            //.get(new GenericType<List<Comment>>(){});
+            .get(List.class);
+
+        assertEquals(2, comments.size());
+
+        client.target(new URL(baseUrl, "v1/comments").toString())
+            .path("{id}")
+            .resolveTemplate("id", comments.get(0).get("id"))
+            .request()
+            .delete();
+
+        comments = client.target(new URL(baseUrl, "v1/comments").toString())
+            .request()
+            //.get(new GenericType<List<Comment>>(){});
+            .get(List.class);
+
+            assertEquals(1, comments.size());
     }
 }

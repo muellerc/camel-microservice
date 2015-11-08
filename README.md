@@ -30,20 +30,20 @@
 
 ## Test the deployment
 ### CREATE A NEW COMMENT
-curl -i -X POST -H "Content-Type: application/json" -d '{"text":"this is my first comment"}' http://localhost:8080/camel-microservice/v1/comments
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"text":"this is my first comment"}' http://localhost:8080/camel-microservice/v1/comments
 
 
 ### GET ALL COMMENTS
-curl -i -X GET -H "Content-Type: application/json" http://localhost:8080/camel-microservice/v1/comments
+curl -i -X GET -H "Accept: application/json" http://localhost:8080/camel-microservice/v1/comments
 
 
 ### UPDATE AN EXISTING COMMENT
-curl -i -X PUT -H "Content-Type: application/json" -d '{"text":"this is my third comment"}' http://localhost:8080/camel-microservice/v1/comments/cbc56365-0bdb-40a9-9729-1283c89d9ac3
+curl -i -X PUT -H "Content-Type: application/json" -H "Accept: application/json" -d '{"text":"this is my third comment"}' http://localhost:8080/camel-microservice/v1/comments/cbc56365-0bdb-40a9-9729-1283c89d9ac3
 
 
 ### GET COMMENT WITH ID {ID}
-curl -i -X GET -H "Content-Type: application/json" http://localhost:8080/camel-microservice/v1/comments/d1466ebe-9d2b-4bba-afdb-9199a436d34e
+curl -i -X GET -H "Accept: application/json" http://localhost:8080/camel-microservice/v1/comments/d1466ebe-9d2b-4bba-afdb-9199a436d34e
 
 
 ### DELETE A COMMENT BY ID {ID}
-curl -i -X DELETE -H "Content-Type: application/json" http://localhost:8080/camel-microservice/v1/comments/d1466ebe-9d2b-4bba-afdb-9199a436d34e
+curl -i -X DELETE http://localhost:8080/camel-microservice/v1/comments/d1466ebe-9d2b-4bba-afdb-9199a436d34e
