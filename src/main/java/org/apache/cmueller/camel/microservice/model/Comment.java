@@ -30,7 +30,7 @@ public class Comment implements Serializable {
 
     @Override
     public String toString() {
-        return "Merchant{" +
+        return "Comment{" +
                 "id='" + id + '\'' +
                 ", text='" + text + '\'' +
                 '}';

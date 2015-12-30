@@ -1,9 +1,8 @@
 package org.apache.cmueller.camel.microservice.dao;
 
-import javax.inject.Singleton;
-
 import org.apache.cmueller.camel.microservice.model.Comment;
 
+import javax.ejb.Singleton;
 import java.util.*;
 
 @Singleton

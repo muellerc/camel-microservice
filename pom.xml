@@ -19,21 +19,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-7.0</artifactId>
-                <version>1.0.2.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-bom</artifactId>
-                <version>2.2.1</version>
-                <scope>test</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
                 <version>1.1.10.Final</version>
@@ -47,20 +32,11 @@
         <!-- container provided dependencies -->
         <dependency>
             <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
+            <artifactId>javaee-api</artifactId>
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>jaxrs-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
 		<dependency>
 		    <groupId>org.jboss.resteasy</groupId>
 		    <artifactId>resteasy-jaxrs</artifactId>
