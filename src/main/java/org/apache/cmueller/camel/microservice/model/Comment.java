@@ -2,21 +2,42 @@ package org.apache.cmueller.camel.microservice.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+@Entity
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    @Id
+    @GeneratedValue
+    private Long id;
     private String text;
 
-    public String getId() {
+    public Comment(Long id, String text) {
+        this.id = id;
+        this.text = text;
+    }
+
+    public Comment(String text) {
+        this.text = text;
+    }
+
+    public Comment() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

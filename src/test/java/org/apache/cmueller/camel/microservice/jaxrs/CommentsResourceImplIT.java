@@ -5,15 +5,16 @@ import static org.junit.Assert.assertNotNull;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.cmueller.camel.microservice.camel.CommentsRouteBuilder;
 import org.apache.cmueller.camel.microservice.dao.CommentDao;
+import org.apache.cmueller.camel.microservice.dao.CommentDaoImpl;
 import org.apache.cmueller.camel.microservice.model.Comment;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -36,14 +37,12 @@ public class CommentsResourceImplIT {
     @Deployment(testable = false)
     public static Archive<WebArchive> deploy() throws Exception {
         PomEquippedResolveStage resolver = Maven.resolver().loadPomFromFile("pom.xml");
+
         return ShrinkWrap.create(WebArchive.class, "camel-microservice.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-            //.addAsLibraries(resolver.resolve("org.apache.camel:camel-core").withoutTransitivity().asFile())
+            .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
             .addAsLibraries(resolver.resolve("org.apache.camel:camel-cdi").withTransitivity().asFile())
-            .addPackage(CommentsRouteBuilder.class.getPackage())
-            .addPackage(CommentDao.class.getPackage())
-            .addPackage(ApplicationConfig.class.getPackage())
-            .addPackage(Comment.class.getPackage());
+            .addClasses(Comment.class, CommentsRouteBuilder.class, CommentDao.class, CommentDaoImpl.class, ApplicationConfig.class, CommentsResource.class, CommentsResourceImpl.class);
     }
 
     private Client client;
@@ -93,10 +92,9 @@ public class CommentsResourceImplIT {
     @Test
     @InSequence(2)
     public void getAll() throws Exception {
-        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+        List<Comment> comments = client.target(new URL(baseUrl, "v1/comments").toString())
             .request()
-            //.get(new GenericType<List<Comment>>(){});
-            .get(List.class);
+            .get(new GenericType<List<Comment>>(){});
 
         assertEquals(2, comments.size());
     }
@@ -105,12 +103,11 @@ public class CommentsResourceImplIT {
     @Test
     @InSequence(3)
     public void get() throws Exception {
-        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+        List<Comment> comments = client.target(new URL(baseUrl, "v1/comments").toString())
             .request()
-            //.get(new GenericType<List<Comment>>(){});
-            .get(List.class);
-        String id = (String) comments.get(0).get("id");
-        String text = (String) comments.get(0).get("text");
+            .get(new GenericType<List<Comment>>(){});
+        Long id = comments.get(0).getId();
+        String text = comments.get(0).getText();
 
         Comment comment = client.target(new URL(baseUrl, "v1/comments").toString())
             .path("{id}")
@@ -127,14 +124,13 @@ public class CommentsResourceImplIT {
     @Test
     @InSequence(4)
     public void update() throws Exception {
-        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+        List<Comment> comments = client.target(new URL(baseUrl, "v1/comments").toString())
             .request()
-            //.get(new GenericType<List<Comment>>(){});
-            .get(List.class);
+            .get(new GenericType<List<Comment>>(){});
 
         assertEquals(2, comments.size());
 
-        String id = (String) comments.get(0).get("id");
+        Long id = comments.get(0).getId();
 
         Comment comment = new Comment();
         comment.setId(id);
@@ -152,8 +148,7 @@ public class CommentsResourceImplIT {
 
         comments = client.target(new URL(baseUrl, "v1/comments").toString())
                 .request()
-                //.get(new GenericType<List<Comment>>(){});
-                .get(List.class);
+                .get(new GenericType<List<Comment>>(){});
 
             assertEquals(2, comments.size());
     }
@@ -162,23 +157,21 @@ public class CommentsResourceImplIT {
     @Test
     @InSequence(5)
     public void delete() throws Exception {
-        List<Map> comments = client.target(new URL(baseUrl, "v1/comments").toString())
+        List<Comment> comments = client.target(new URL(baseUrl, "v1/comments").toString())
             .request()
-            //.get(new GenericType<List<Comment>>(){});
-            .get(List.class);
+            .get(new GenericType<List<Comment>>(){});
 
         assertEquals(2, comments.size());
 
         client.target(new URL(baseUrl, "v1/comments").toString())
             .path("{id}")
-            .resolveTemplate("id", comments.get(0).get("id"))
+            .resolveTemplate("id", comments.get(0).getId())
             .request()
             .delete();
 
         comments = client.target(new URL(baseUrl, "v1/comments").toString())
             .request()
-            //.get(new GenericType<List<Comment>>(){});
-            .get(List.class);
+            .get(new GenericType<List<Comment>>(){});
 
             assertEquals(1, comments.size());
     }

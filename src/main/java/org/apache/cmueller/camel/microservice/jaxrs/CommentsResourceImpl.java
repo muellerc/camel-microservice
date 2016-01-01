@@ -76,7 +76,6 @@ public class CommentsResourceImpl implements CommentsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
     public Comment update(@PathParam("id") String id, Comment comment) {
-        comment.setId(id);
         return updateComment.requestBody(comment, Comment.class);
     }
 

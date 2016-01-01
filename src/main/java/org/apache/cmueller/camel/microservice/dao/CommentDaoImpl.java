@@ -2,42 +2,46 @@ package org.apache.cmueller.camel.microservice.dao;
 
 import org.apache.cmueller.camel.microservice.model.Comment;
 
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.*;
 
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class CommentDaoImpl implements CommentDao {
 
-    private Map<String, Comment> comments = new HashMap<>();
+    @PersistenceContext(unitName = "prod")
+    EntityManager em;
 
     @Override
-    public Collection<Comment> get() {
-        return comments.values();
+    public List<Comment> get() {
+        return em.createQuery("SELECT c from Comment c ORDER BY c.id ASC", Comment.class).getResultList();
     }
 
     @Override
-    public Comment get(String id) {
-        return comments.get(id);
+    public Comment get(Long id) {
+        return em.find(Comment.class, id);
     }
 
     @Override
     public Comment create(Comment comment) {
-        comment.setId(UUID.randomUUID().toString());
-
-        comments.put(comment.getId(), comment);
+        this.em.persist(comment);
 
         return comment;
     }
 
     @Override
     public Comment update(Comment comment) {
-        comments.put(comment.getId(), comment);
-
-        return comment;
+        return this.em.merge(comment);
     }
 
     @Override
-    public Comment delete(String id) {
-        return comments.remove(id);
+    public Comment delete(Long id) {
+        Comment comment = get(id);
+        this.em.remove(comment);
+        return comment;
     }
 }
